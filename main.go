@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 	"net/http"
 	"regexp"
@@ -76,25 +75,21 @@ func calculatePoints(receipt Receipt) int {
 	// Rule 1: One point for every alphanumeric character in the retailer name
 	retailerPoints := len(regexp.MustCompile(`[a-zA-Z0-9]`).FindAllString(receipt.Retailer, -1))
 	points += retailerPoints
-	fmt.Println("Retailer Name Points:", retailerPoints)
 
 	// Rule 2: 50 points if total is a round dollar amount
 	total, _ := strconv.ParseFloat(receipt.Total, 64)
 	if total == float64(int(total)) {
 		points += 50
-		fmt.Println("Round Dollar Total Points: 50")
 	}
 
 	// Rule 3: 25 points if total is a multiple of 0.25
 	if math.Mod(total, 0.25) == 0 {
 		points += 25
-		fmt.Println("Multiple of 0.25 Points: 25")
 	}
 
 	// Rule 4: 5 points for every two items on the receipt
 	pairPoints := (len(receipt.Items) / 2) * 5
 	points += pairPoints
-	fmt.Println("Item Pairs Points:", pairPoints)
 
 	// Rule 5: Trimmed item description length is a multiple of 3
 	descriptionPoints := 0
@@ -104,11 +99,9 @@ func calculatePoints(receipt Receipt) int {
 			price, _ := strconv.ParseFloat(item.Price, 64)
 			itemPoints := int(math.Ceil(price * 0.2))
 			descriptionPoints += itemPoints
-			fmt.Printf("Item: %s | Description Points: %d\n", trimmedDesc, itemPoints)
 		}
 	}
 	points += descriptionPoints
-	fmt.Println("Total Item Description Points:", descriptionPoints)
 
 	// Rule 6: 6 points if the day of purchase is odd
 	date, _ := time.Parse("2006-01-02", receipt.PurchaseDate)
@@ -117,7 +110,6 @@ func calculatePoints(receipt Receipt) int {
 		oddDayPoints = 6
 		points += oddDayPoints
 	}
-	fmt.Println("Odd Day Points:", oddDayPoints)
 
 	// Rule 7: 10 points if purchase time is between 2:00 PM and 4:00 PM
 	timeParts, _ := time.Parse("15:04", receipt.PurchaseTime)
@@ -126,10 +118,6 @@ func calculatePoints(receipt Receipt) int {
 		timeBonus = 10
 		points += timeBonus
 	}
-	fmt.Println("Time Bonus Points:", timeBonus)
-
-	// Debug final total
-	fmt.Println("Final Computed Points:", points)
 	return points
 }
 
